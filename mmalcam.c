@@ -82,7 +82,6 @@ int main(int argc, const char **argv)
    camcorder_behaviour.vformat = DEFAULT_VIDEO_FORMAT;
    camcorder_behaviour.zero_copy = 1;
    camcorder_behaviour.bit_rate = DEFAULT_BIT_RATE;
-   camcorder_behaviour.focus_test = MMAL_PARAM_FOCUS_MAX;
    camcorder_behaviour.camera_num = DEFAULT_CAM_NUM;
    camcorder_behaviour.frame_cb = on_frame_cb;
    camcorder_behaviour.enable_viewfinder = MMAL_FALSE;
@@ -230,11 +229,6 @@ static int test_parse_cmdline(int argc, const char **argv)
       case 'O': camcorder_behaviour.opaque = 1; break;
       case 'b': if (i+1 >= argc) goto invalid_option;
          if (sscanf(argv[i+1], "%u", &camcorder_behaviour.bit_rate) == 0) goto invalid_option;
-         i++;
-         break;
-      case 'a': if (i+1 >= argc) goto invalid_option;
-         if (sscanf(argv[i+1], "%u", &camcorder_behaviour.focus_test) == 0) goto invalid_option;
-         if (camcorder_behaviour.focus_test > MMAL_PARAM_FOCUS_EDOF) goto invalid_option;
          i++;
          break;
       case 'n': if (i+1 >= argc) goto invalid_option;
