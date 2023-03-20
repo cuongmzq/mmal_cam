@@ -85,6 +85,7 @@ int main(int argc, const char **argv)
    camcorder_behaviour.focus_test = MMAL_PARAM_FOCUS_MAX;
    camcorder_behaviour.camera_num = DEFAULT_CAM_NUM;
    camcorder_behaviour.frame_cb = on_frame_cb;
+   camcorder_behaviour.enable_viewfinder = MMAl_FALSE;
 
    if(test_parse_cmdline(argc, argv))
    {
