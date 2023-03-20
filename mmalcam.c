@@ -122,7 +122,7 @@ error:
    vcos_thread_join(&camcorder_thread, NULL);
 
    test_mmalcam_dump_stats("Render", &camcorder_behaviour.render_stats);
-   if (camcorder_behaviour.uri)
+   if (camcorder_behaviour.uri || camcorder_behaviour.frame_cb)
       test_mmalcam_dump_stats("Encoder", &camcorder_behaviour.encoder_stats);
 
    vcos_semaphore_delete(&camcorder_behaviour.init_sem);
