@@ -428,6 +428,58 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
       if (encoder_output->format->encoding == MMAL_ENCODING_JPEG)
          video_port = still_port;
 
+      // if (behaviour->encoding == MMAL_ENCODING_H264)
+      // {
+         //set INLINE HEADER flag to generate SPS and PPS for every IDR if requested
+         if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_HEADER, behaviour->bInlineHeaders) != MMAL_SUCCESS)
+         {
+            vcos_log_error("failed to set INLINE HEADER FLAG parameters");
+            // Continue rather than abort..
+         }
+
+         //set flag for add SPS TIMING
+         if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_SPS_TIMING, behaviour->addSPSTiming) != MMAL_SUCCESS)
+         {
+            vcos_log_error("failed to set SPS TIMINGS FLAG parameters");
+            // Continue rather than abort..
+         }
+
+         //set INLINE VECTORS flag to request motion vector estimates
+         if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_VECTORS, behaviour->inlineMotionVectors) != MMAL_SUCCESS)
+         {
+            vcos_log_error("failed to set INLINE VECTORS parameters");
+            // Continue rather than abort..
+         }
+
+         // Adaptive intra refresh settings
+         if ( behaviour->intra_refresh_type != -1)
+         {
+            MMAL_PARAMETER_VIDEO_INTRA_REFRESH_T  param;
+            param.hdr.id = MMAL_PARAMETER_VIDEO_INTRA_REFRESH;
+            param.hdr.size = sizeof(param);
+
+            // Get first so we don't overwrite anything unexpectedly
+            status = mmal_port_parameter_get(encoder_output, &param.hdr);
+            if (status != MMAL_SUCCESS)
+            {
+               vcos_log_warn("Unable to get existing H264 intra-refresh values. Please update your firmware");
+               // Set some defaults, don't just pass random stack data
+               param.air_mbs = param.air_ref = param.cir_mbs = param.pir_mbs = 0;
+            }
+
+            param.refresh_mode = behaviour->intra_refresh_type;
+
+            //if (behaviour->intra_refresh_type == MMAL_VIDEO_INTRA_REFRESH_CYCLIC_MROWS)
+            //   param.cir_mbs = 10;
+
+            status = mmal_port_parameter_set(encoder_output, &param.hdr);
+            if (status != MMAL_SUCCESS)
+            {
+               vcos_log_error("Unable to set H264 intra-refresh values");
+            }
+         }
+      // }
+
       status = connect_ports(video_port, encoder_input, &queue_encoder_in, &pool_encoder_in);
       if (status != MMAL_SUCCESS)
       {

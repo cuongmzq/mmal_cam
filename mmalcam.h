@@ -66,6 +66,10 @@ typedef struct MMALCAM_BEHAVIOUR_T
    uint32_t camera_num;                         /**< camera number */
    void(*frame_cb)(MMAL_BUFFER_HEADER_T*);
    MMAL_BOOL_T enable_viewfinder;
+   MMAL_BOOL_T bInlineHeaders;
+   MMAL_BOOL_T addSPSTiming;
+   MMAL_BOOL_T inlineMotionVectors;
+   int intra_refresh_type;
 } MMALCAM_BEHAVIOUR_T;
 
 /** Start the camcorder.

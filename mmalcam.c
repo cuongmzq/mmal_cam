@@ -69,7 +69,10 @@ int main(int argc, const char **argv)
    camcorder_behaviour.camera_num = DEFAULT_CAM_NUM;
    camcorder_behaviour.frame_cb = on_frame_cb;
    camcorder_behaviour.enable_viewfinder = MMAL_FALSE;
-
+   camcorder_behaviour.bInlineHeaders = MMAL_TRUE;
+   camcorder_behaviour.addSPSTiming = MMAL_TRUE;
+   camcorder_behaviour.inlineMotionVectors = MMAL_FALSE;
+   camcorder_behaviour.intra_refresh_type = MMAL_VIDEO_INTRA_REFRESH_ADAPTIVE;
    if(test_parse_cmdline(argc, argv))
    {
       result = -1;
