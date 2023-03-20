@@ -212,6 +212,7 @@ static int test_parse_cmdline(int argc, const char **argv)
          camcorder_behaviour.vformat = argv[i+1];
          break;
       case 'r': if (i+1 >= argc) goto invalid_option;
+         camcorder_behaviour.enable_viewfinder = MMAL_TRUE;
          if (!test_mmalcam_parse_rect(argv[i+1], &camcorder_behaviour.display_area)) goto invalid_option;
          i++;
          break;
@@ -235,7 +236,6 @@ static int test_parse_cmdline(int argc, const char **argv)
          if (sscanf(argv[i+1], "%u", &camcorder_behaviour.camera_num) == 0) goto invalid_option;
          i++;
          break;
-      case 'p': camcorder_behaviour.enable_viewfinder = MMAL_TRUE; break;
       default: goto invalid_option;
       }
       continue;
@@ -280,7 +280,6 @@ static int test_parse_cmdline(int argc, const char **argv)
       printf(" -b <n>      : use <n> as the bitrate (bits/s)\n");
       printf(" -a <n>      : Set to focus mode <n> (autofocus will cycle). Use MMAL_PARAM_FOCUS_T values.\n");
       printf(" -n <n>      : Set camera number <n>. Use MMAL_PARAMETER_CAMERA_NUM values.\n");
-      printf(" -p <n>      : Enable viewfinder.\n");
    }
    return 1;
 }
