@@ -251,10 +251,6 @@ static int test_parse_cmdline(int argc, const char **argv)
       printf(" -o <file>   : write encoded output to <file>\n");
       printf(" -v <format> : set video resolution and encoding format (defaults to '1280x720:h264')\n");
       printf(" -r <r>      : put viewfinder at position <r>, given as x,y,width,height\n");
-      printf(" -c <n> <x>  : change camera parameter every <n> seconds.\n");
-      printf("                The parameter changed is defined by <x>, one of\n");
-      printf("                image_effect, rotation, zoom, focus, hdr, drc, contrast,\n");
-      printf("                brightness, saturation, sharpness\n");
       printf(" -t <n>      : operate camera for <n> seconds\n");
       printf(" -f <n>[/<d>]: set camera frame rate to <n>/<d>, where <d> is 1 if not given\n");
       printf(" -x          : use tunneling\n");
@@ -262,7 +258,6 @@ static int test_parse_cmdline(int argc, const char **argv)
       printf(" -z!         : use full copy buffers\n");
       printf(" -O          : use opaque images\n");
       printf(" -b <n>      : use <n> as the bitrate (bits/s)\n");
-      printf(" -a <n>      : Set to focus mode <n> (autofocus will cycle). Use MMAL_PARAM_FOCUS_T values.\n");
       printf(" -n <n>      : Set camera number <n>. Use MMAL_PARAMETER_CAMERA_NUM values.\n");
    }
    return 1;
