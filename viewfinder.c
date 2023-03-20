@@ -892,21 +892,21 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
    // if (behaviour->encoding == MMAL_ENCODING_H264)
    // {
       //set INLINE HEADER flag to generate SPS and PPS for every IDR if requested
-      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_HEADER, 1) != MMAL_SUCCESS)
+      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_HEADER, behaviour->bInlineHeaders) != MMAL_SUCCESS)
       {
          vcos_log_error("failed to set INLINE HEADER FLAG parameters");
          // Continue rather than abort..
       }
 
       //set flag for add SPS TIMING
-      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_SPS_TIMING, 1) != MMAL_SUCCESS)
+      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_SPS_TIMING, behaviour->addSPSTiming) != MMAL_SUCCESS)
       {
          vcos_log_error("failed to set SPS TIMINGS FLAG parameters");
          // Continue rather than abort..
       }
 
       //set INLINE VECTORS flag to request motion vector estimates
-      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_VECTORS, 0) != MMAL_SUCCESS)
+      if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_VECTORS, behaviour->inlineMotionVectors) != MMAL_SUCCESS)
       {
          vcos_log_error("failed to set INLINE VECTORS parameters");
          // Continue rather than abort..
