@@ -950,7 +950,7 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
             
       {    
          MMAL_PARAMETER_UINT32_T param = {
-            {MMAL_PARAMETER_INTRAPERIOD, sizeof(param)}, 100000};
+            {MMAL_PARAMETER_INTRAPERIOD, sizeof(param)}, behaviour->intra_period};
          *status = mmal_port_parameter_set(encoder_output, &param.hdr);
          if (*status != MMAL_SUCCESS) {
             vcos_log_error("Unable to set intraperiod");

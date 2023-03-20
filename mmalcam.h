@@ -70,6 +70,7 @@ typedef struct MMALCAM_BEHAVIOUR_T
    MMAL_BOOL_T addSPSTiming;
    MMAL_BOOL_T inlineMotionVectors;
    int intra_refresh_type;
+   int intra_period;
 } MMALCAM_BEHAVIOUR_T;
 
 /** Start the camcorder.
