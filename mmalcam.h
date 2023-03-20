@@ -82,7 +82,7 @@ typedef struct MMALCAM_BEHAVIOUR_T
    uint32_t bit_rate;                           /**< Video encoder bit rate */
    MMAL_PARAM_FOCUS_T focus_test;               /**< Set to given focus, MMAL_PARAM_FOCUS_MAX to disable */
    uint32_t camera_num;                         /**< camera number */
-   void(*)(MMAL_BUFFER_HEADER_T*) frame_cb;
+   void(*frame_callback)(MMAL_BUFFER_HEADER_T*) frame_cb;
 } MMALCAM_BEHAVIOUR_T;
 
 /** Start the camcorder.
