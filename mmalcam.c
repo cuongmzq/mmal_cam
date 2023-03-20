@@ -122,7 +122,8 @@ error:
    LOG_TRACE("Waiting for camcorder thread to terminate");
    vcos_thread_join(&camcorder_thread, NULL);
 
-   test_mmalcam_dump_stats("Render", &camcorder_behaviour.render_stats);
+   if (camcorder_behaviour.enable_viewfinder)
+      test_mmalcam_dump_stats("Render", &camcorder_behaviour.render_stats);
    if (camcorder_behaviour.uri || camcorder_behaviour.frame_cb)
       test_mmalcam_dump_stats("Encoder", &camcorder_behaviour.encoder_stats);
 
