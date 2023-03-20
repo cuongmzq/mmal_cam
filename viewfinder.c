@@ -547,9 +547,8 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
 #endif
               }
               
-              if (frame_cb) {
+              if (frame_cb)
                   frame_cb(buffer);
-              }
                mmal_buffer_header_mem_unlock(buffer);
                packet_count++;
                if (output && (packet_count > MAX_PACKET_COUNT))
