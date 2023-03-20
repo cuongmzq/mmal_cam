@@ -41,11 +41,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** Number of buffers we want to use for video render. Video render needs at least 2. */
 #define VIDEO_OUTPUT_BUFFERS_NUM 3
 
-/** After this many packets, the container (if any) will be closed and we
- * start discarding encoded packets.
- */
-#define MAX_PACKET_COUNT 150
-
 /** Initialise a parameter structure */
 #define INIT_PARAMETER(PARAM, PARAM_ID)   \
    do {                                   \
@@ -372,7 +367,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    MMAL_COMPONENT_T *camera = 0, *encoder = 0, *render = 0;
    MMAL_PORT_T *viewfinder_port = 0, *video_port = 0, *still_port = 0;
    MMAL_PORT_T *render_port = 0, *encoder_input = 0, *encoder_output = 0;
-   int packet_count = 0;
 
    FILE *output = NULL;
 
@@ -516,13 +510,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
               if (frame_cb)
                   frame_cb(buffer);
                mmal_buffer_header_mem_unlock(buffer);
-               packet_count++;
-               if (output && (packet_count > MAX_PACKET_COUNT))
-               {
-                  fclose(output);
-                  output = NULL;
-                  fprintf(stderr, "All packets written\n");
-               }
             }
             mmal_buffer_header_release(buffer);
          }
@@ -580,9 +567,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
       fclose(output);
 
    vcos_event_flags_delete(&events);
-
-   if (packet_count)
-      printf("Packet count: %d\n", packet_count);
 
    if (behaviour->init_result != MMALCAM_INIT_SUCCESS)
       vcos_semaphore_post(&behaviour->init_sem);
