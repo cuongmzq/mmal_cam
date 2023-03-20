@@ -72,7 +72,7 @@ int main(int argc, const char **argv)
    camcorder_behaviour.bInlineHeaders = MMAL_TRUE;
    camcorder_behaviour.addSPSTiming = MMAL_TRUE;
    camcorder_behaviour.inlineMotionVectors = MMAL_FALSE;
-   camcorder_behaviour.intra_refresh_type = MMAL_VIDEO_INTRA_REFRESH_ADAPTIVE;
+   camcorder_behaviour.intra_refresh_type = MMAL_VIDEO_INTRA_REFRESH_CYCLIC;
    if(test_parse_cmdline(argc, argv))
    {
       result = -1;
