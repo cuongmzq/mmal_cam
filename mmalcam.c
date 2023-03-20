@@ -37,22 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DEFAULT_BIT_RATE      5000000
 #define DEFAULT_CAM_NUM       0
 
-struct {
-   const char *name;
-   MMALCAM_CHANGE_T value;
-} mmalcam_change_table[] = {
-   { "image_effect", MMALCAM_CHANGE_IMAGE_EFFECT },
-   { "rotation", MMALCAM_CHANGE_ROTATION },
-   { "zoom", MMALCAM_CHANGE_ZOOM },
-   { "focus", MMALCAM_CHANGE_FOCUS },
-   { "drc", MMALCAM_CHANGE_DRC },
-   { "hdr", MMALCAM_CHANGE_HDR },
-   { "contrast", MMALCAM_CHANGE_CONTRAST },
-   { "brightness", MMALCAM_CHANGE_BRIGHTNESS },
-   { "saturation", MMALCAM_CHANGE_SATURATION },
-   { "sharpness", MMALCAM_CHANGE_SHARPNESS },
-};
-
 static int stop;
 static VCOS_THREAD_T camcorder_thread;
 static MMALCAM_BEHAVIOUR_T camcorder_behaviour;
