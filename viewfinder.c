@@ -503,10 +503,11 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    ms_per_change = behaviour->seconds_per_change * 1000;
    last_change_ms = vcos_get_ms();
    set_focus_delay_ms = 1000;
+   
+   MMAL_BUFFER_HEADER_T *buffer;
 
    while(1)
    {
-      MMAL_BUFFER_HEADER_T *buffer;
       VCOS_UNSIGNED set;
 
       vcos_event_flags_get(&events, MMAL_CAM_ANY_EVENT, VCOS_OR_CONSUME, VCOS_TICKS_TO_MS(2), &set);
