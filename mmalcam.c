@@ -73,7 +73,8 @@ int main(int argc, const char **argv)
    camcorder_behaviour.addSPSTiming = MMAL_TRUE;
    camcorder_behaviour.inlineMotionVectors = MMAL_FALSE;
    camcorder_behaviour.intra_refresh_type = -1;
-   camcorder_behaviour.intra_period = 30;
+   camcorder_behaviour.intra_period = 0;
+   camcorder_behaviour.immutable_input = MMAL_TRUE;
    if(test_parse_cmdline(argc, argv))
    {
       result = -1;

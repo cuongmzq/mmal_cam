@@ -69,6 +69,7 @@ typedef struct MMALCAM_BEHAVIOUR_T
    MMAL_BOOL_T bInlineHeaders;
    MMAL_BOOL_T addSPSTiming;
    MMAL_BOOL_T inlineMotionVectors;
+   MMAL_BOOL_T immutable_input;
    int intra_refresh_type;
    int intra_period;
 } MMALCAM_BEHAVIOUR_T;
