@@ -939,6 +939,13 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
             vcos_log_error("Unable to set H264 intra-refresh values");
          }
       }
+
+      
+      if (mmal_port_parameter_set_boolean(encoder_input, MMAL_PARAMETER_VIDEO_IMMUTABLE_INPUT, 1) != MMAL_SUCCESS)
+      {
+         vcos_log_error("Unable to set immutable input flag");
+         // Continue rather than abort..
+      }
    // }
 
    /* Enable component */
