@@ -235,7 +235,7 @@ static int test_parse_cmdline(int argc, const char **argv)
          if (sscanf(argv[i+1], "%u", &camcorder_behaviour.camera_num) == 0) goto invalid_option;
          i++;
          break;
-      case 'vf': camcorder_behaviour.enable_viewfinder = MMAL_TRUE; break;
+      case "vf": camcorder_behaviour.enable_viewfinder = MMAL_TRUE; break;
       default: goto invalid_option;
       }
       continue;
