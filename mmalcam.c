@@ -65,6 +65,8 @@ static void test_signal_handler(int signum);
 static void test_mmalcam_dump_stats(const char *title, MMAL_PARAMETER_STATISTICS_T* stats);
 static int test_parse_cmdline(int argc, const char **argv);
 
+void on_frame_cb(MMAL_BUFFER_HEADER_T *frame);
+
 /*****************************************************************************/
 int main(int argc, const char **argv)
 {
@@ -82,9 +84,7 @@ int main(int argc, const char **argv)
    camcorder_behaviour.bit_rate = DEFAULT_BIT_RATE;
    camcorder_behaviour.focus_test = MMAL_PARAM_FOCUS_MAX;
    camcorder_behaviour.camera_num = DEFAULT_CAM_NUM;
-   camcorder_behaviour.frame_cb = &([]()(MMAL_BUFFER_HEADER_T *frame) {
-      printf("Frame Size: %d\n", frame->length);
-   });
+   camcorder_behaviour.frame_cb = on_frame_cb;
 
    if(test_parse_cmdline(argc, argv))
    {
