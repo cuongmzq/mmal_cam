@@ -503,7 +503,7 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
             {
                mmal_buffer_header_mem_lock(buffer);
               if(output) {
-                  LOG_ERROR("Write %d bytes sps: %d", buffer->length, buffer->pts);
+                  LOG_ERROR("Write %d bytes sps: %lu", buffer->length, buffer->pts);
                   fwrite(buffer->data, 1, buffer->length, output);
               }
               
