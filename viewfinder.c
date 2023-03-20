@@ -920,8 +920,8 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
          param.hdr.size = sizeof(param);
 
          // Get first so we don't overwrite anything unexpectedly
-         status = mmal_port_parameter_get(encoder_output, &param.hdr);
-         if (status != MMAL_SUCCESS)
+         *status = mmal_port_parameter_get(encoder_output, &param.hdr);
+         if (*status != MMAL_SUCCESS)
          {
             vcos_log_warn("Unable to get existing H264 intra-refresh values. Please update your firmware");
             // Set some defaults, don't just pass random stack data
@@ -933,8 +933,8 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
          //if (behaviour->intra_refresh_type == MMAL_VIDEO_INTRA_REFRESH_CYCLIC_MROWS)
          //   param.cir_mbs = 10;
 
-         status = mmal_port_parameter_set(encoder_output, &param.hdr);
-         if (status != MMAL_SUCCESS)
+         *status = mmal_port_parameter_set(encoder_output, &param.hdr);
+         if (*status != MMAL_SUCCESS)
          {
             vcos_log_error("Unable to set H264 intra-refresh values");
          }
