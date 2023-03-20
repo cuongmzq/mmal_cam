@@ -431,7 +431,9 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
       }
    }
 
-   if (behaviour->uri || behaviour->frame_cb)
+   void(*frame_cb)(MMAL_BUFFER_HEADER_T*) = behaviour->frame_cb;
+
+   if (behaviour->uri || frame_cb)
    {
       MMAL_PARAMETER_BOOLEAN_T camera_capture =
             {{MMAL_PARAMETER_CAPTURE, sizeof(MMAL_PARAMETER_BOOLEAN_T)}, 1};
@@ -533,7 +535,7 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
 #if USE_CONTAINER
                 || container
 #endif
-                || behaviour->frame_cb)
+                || frame_cb)
             {
                mmal_buffer_header_mem_lock(buffer);
               if(output) {
@@ -545,8 +547,8 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
 #endif
               }
               
-              if (behaviour->frame_cb) {
-                  behaviour->frame_cb(buffer);
+              if (frame_cb) {
+                  frame_cb(buffer);
               }
                mmal_buffer_header_mem_unlock(buffer);
                packet_count++;
@@ -566,6 +568,8 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
          }
       }
    }
+
+   frame_cb = NULL;
 
    /* Disable ports */
    disable_port(viewfinder_port);
