@@ -71,14 +71,6 @@ static VC_CONTAINER_FOURCC_T test_container_encoding_to_codec(uint32_t encoding)
 
 /* Utility function to create and setup the camera viewfinder component */
 static MMAL_COMPONENT_T *test_camera_create(MMALCAM_BEHAVIOUR_T *behaviour, MMAL_STATUS_T *status);
-static MMAL_BOOL_T mmalcam_next_effect(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_next_rotation(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_next_zoom(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_next_focus(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_reset_focus(MMAL_COMPONENT_T *camera, MMAL_PARAM_FOCUS_T focus_setting);
-static MMAL_BOOL_T mmalcam_next_drc(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_next_hdr(MMAL_COMPONENT_T *camera);
-static MMAL_BOOL_T mmalcam_next_colour_param(MMAL_COMPONENT_T *camera, uint32_t id, int min, int max, const char *param_name);
 
 /* Utility function to create and setup the video render component */
 static MMAL_COMPONENT_T *test_video_render_create(MMALCAM_BEHAVIOUR_T *behaviour, MMAL_STATUS_T *status);
@@ -395,7 +387,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    MMAL_COMPONENT_T *camera = 0, *encoder = 0, *render = 0;
    MMAL_PORT_T *viewfinder_port = 0, *video_port = 0, *still_port = 0;
    MMAL_PORT_T *render_port = 0, *encoder_input = 0, *encoder_output = 0;
-   uint32_t last_change_ms, set_focus_delay_ms;
    int packet_count = 0;
 #if USE_CONTAINER
    VC_CONTAINER_T *container = 0;
@@ -502,9 +493,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    behaviour->init_result = MMALCAM_INIT_SUCCESS;
    vcos_semaphore_post(&behaviour->init_sem);
 
-   last_change_ms = vcos_get_ms();
-   set_focus_delay_ms = 1000;
-
    MMAL_BUFFER_HEADER_T *buffer;
    VCOS_UNSIGNED set;
 
@@ -512,16 +500,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    {
       vcos_event_flags_get(&events, MMAL_CAM_ANY_EVENT, VCOS_OR_CONSUME, VCOS_TICKS_TO_MS(2), &set);
       if(*stop) break;
-
-      if (behaviour->focus_test != MMAL_PARAM_FOCUS_MAX)
-      {
-         if (set & MMAL_CAM_AUTOFOCUS_COMPLETE ||
-               (set_focus_delay_ms && (vcos_get_ms() - last_change_ms) >= set_focus_delay_ms))
-         {
-            set_focus_delay_ms = 0;
-            mmalcam_reset_focus(camera, behaviour->focus_test);
-         }
-      }
 
       /* Send empty buffers to the output ports */
       if (behaviour->enable_viewfinder) {
@@ -819,280 +797,6 @@ static MMAL_COMPONENT_T *test_camera_create(MMALCAM_BEHAVIOUR_T *behaviour, MMAL
    if(camera) mmal_component_destroy(camera);
    return 0;
 }
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_effect(MMAL_COMPONENT_T *camera)
-{
-   static const MMAL_PARAM_IMAGEFX_T effects[] = {
-               MMAL_PARAM_IMAGEFX_NONE,
-               MMAL_PARAM_IMAGEFX_NEGATIVE,
-               MMAL_PARAM_IMAGEFX_SOLARIZE
-            };
-   static unsigned int index;
-   MMAL_PARAMETER_IMAGEFX_T image_fx = {{ MMAL_PARAMETER_IMAGE_EFFECT, sizeof(image_fx)},0};
-   MMAL_PARAMETER_IMAGEFX_T image_fx_check = {{ MMAL_PARAMETER_IMAGE_EFFECT, sizeof(image_fx)},0};
-   MMAL_STATUS_T result;
-
-   index++;
-   if(index >= countof(effects))
-      index = 0;
-   image_fx.value = effects[index];
-   result = mmal_port_parameter_set(camera->control, &image_fx.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set image effect, %d", result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->control, &image_fx_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve image effect, %d", result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&image_fx, &image_fx_check, sizeof(image_fx)) != 0)
-   {
-      LOG_ERROR("Image effect set (%d) was not retrieved (%d)", image_fx.value, image_fx_check.value);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_rotation(MMAL_COMPONENT_T *camera)
-{
-   static MMAL_PARAMETER_UINT32_T rotate = {{MMAL_PARAMETER_ROTATION,sizeof(rotate)},0};
-   MMAL_PARAMETER_UINT32_T rotate_check = {{MMAL_PARAMETER_ROTATION,sizeof(rotate_check)},0};
-   MMAL_STATUS_T result;
-
-   rotate.value += 90;
-   if(rotate.value == 360)
-      rotate.value = 0;
-   result = mmal_port_parameter_set(camera->output[0], &rotate.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set rotation, %d", result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->output[0], &rotate_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve rotation, %d", result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&rotate, &rotate_check, sizeof(rotate)) != 0)
-   {
-      LOG_ERROR("Rotation set (%d) was not retrieved (%d)", rotate.value, rotate_check.value);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_zoom(MMAL_COMPONENT_T *camera)
-{
-   static MMAL_PARAMETER_SCALEFACTOR_T scale = {{MMAL_PARAMETER_ZOOM,sizeof(scale)},1<<16,1<<16};
-   static int32_t dirn = 1 << 14;
-   MMAL_PARAMETER_SCALEFACTOR_T scale_check = {{MMAL_PARAMETER_ZOOM,sizeof(scale_check)},0,0};
-   MMAL_STATUS_T result;
-
-   scale.scale_x += dirn;
-   scale.scale_y += dirn;
-   if (scale.scale_x >= 4<<16 || scale.scale_x <= 1<<16)
-      dirn = -dirn;
-   result = mmal_port_parameter_set(camera->control, &scale.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set scale, %d", result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->control, &scale_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve scale, %d", result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&scale, &scale_check, sizeof(scale)) != 0)
-   {
-      LOG_ERROR("Scale set (%d,%d) was not retrieved (%d,%d)",
-            scale.scale_x, scale.scale_y, scale_check.scale_x, scale_check.scale_y);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_focus(MMAL_COMPONENT_T *camera)
-{
-   static const MMAL_PARAM_FOCUS_T focus_setting[] = {
-               MMAL_PARAM_FOCUS_AUTO,
-               MMAL_PARAM_FOCUS_AUTO_MACRO,
-               MMAL_PARAM_FOCUS_CAF,
-               MMAL_PARAM_FOCUS_FIXED_INFINITY,
-               MMAL_PARAM_FOCUS_FIXED_HYPERFOCAL,
-               MMAL_PARAM_FOCUS_FIXED_MACRO,
-               MMAL_PARAM_FOCUS_EDOF,
-            };
-   static unsigned int index;
-   static MMAL_PARAMETER_FOCUS_T focus = {{MMAL_PARAMETER_FOCUS,sizeof(focus)},0};
-   static MMAL_PARAMETER_FOCUS_T focus_check = {{MMAL_PARAMETER_FOCUS,sizeof(focus)},0};
-   MMAL_STATUS_T result;
-
-   index++;
-   if(index >= countof(focus_setting))
-      index = MMAL_FALSE;
-   focus.value = focus_setting[index];
-   result = mmal_port_parameter_set(camera->control, &focus.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set focus to %d", focus.value);
-      /* As this depends on the camera module, do not fail */
-      return MMAL_TRUE;
-   }
-   result = mmal_port_parameter_get(camera->control, &focus_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve focus, %d", result);
-      return MMAL_FALSE;
-   }
-   /* Focus setting is asynchronous, so the value read back may not match what was set */
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_reset_focus(MMAL_COMPONENT_T *camera, MMAL_PARAM_FOCUS_T focus_setting)
-{
-   MMAL_PARAMETER_FOCUS_T focus = {{MMAL_PARAMETER_FOCUS, sizeof(focus)},MMAL_PARAM_FOCUS_FIXED_HYPERFOCAL};
-   MMAL_STATUS_T result;
-
-   result = mmal_port_parameter_set(camera->control, &focus.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set focus to HYPERFOCAL, result %d", result);
-      return MMAL_FALSE;
-   }
-   focus.value = focus_setting;
-   result = mmal_port_parameter_set(camera->control, &focus.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set focus to %d, result %d", focus_setting, result);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_drc(MMAL_COMPONENT_T *camera)
-{
-   static const MMAL_PARAMETER_DRC_STRENGTH_T drc_setting[] = {
-               MMAL_PARAMETER_DRC_STRENGTH_OFF,
-               MMAL_PARAMETER_DRC_STRENGTH_LOW,
-               MMAL_PARAMETER_DRC_STRENGTH_MEDIUM,
-               MMAL_PARAMETER_DRC_STRENGTH_HIGH
-            };
-   static unsigned int index;
-   MMAL_STATUS_T result;
-   MMAL_PARAMETER_DRC_T drc = {{MMAL_PARAMETER_DYNAMIC_RANGE_COMPRESSION,sizeof(drc)},0};
-   MMAL_PARAMETER_DRC_T drc_check = {{MMAL_PARAMETER_DYNAMIC_RANGE_COMPRESSION,sizeof(drc_check)},0};
-
-   index++;
-   if(index >= countof(drc_setting))
-      index = 0;
-   drc.strength = drc_setting[index];
-
-   result = mmal_port_parameter_set(camera->control, &drc.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set drc, %d", result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->control, &drc_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve drc, %d", result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&drc, &drc_check, sizeof(drc)) != 0)
-   {
-      LOG_ERROR("DRC set (%d) was not retrieved (%d)", drc.strength, drc_check.strength);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-static MMAL_BOOL_T mmalcam_next_hdr(MMAL_COMPONENT_T *camera)
-{
-   static const MMAL_BOOL_T hdr_setting[] = {
-               MMAL_FALSE,
-               MMAL_TRUE,
-            };
-   static unsigned int index;
-   MMAL_STATUS_T result;
-   MMAL_PARAMETER_BOOLEAN_T hdr = {{MMAL_PARAMETER_HIGH_DYNAMIC_RANGE,sizeof(hdr)},0};
-   MMAL_PARAMETER_BOOLEAN_T hdr_check = {{MMAL_PARAMETER_HIGH_DYNAMIC_RANGE,sizeof(hdr_check)},0};
-
-   index++;
-   if(index >= countof(hdr_setting))
-      index = 0;
-   hdr.enable = hdr_setting[index];
-
-   result = mmal_port_parameter_set(camera->control, &hdr.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set hdr, %d", result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->control, &hdr_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve hdr, %d", result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&hdr, &hdr_check, sizeof(hdr)) != 0)
-   {
-      LOG_ERROR("HDR set (%d) was not retrieved (%d)", hdr.enable, hdr_check.enable);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
-/*****************************************************************************/
-/* Contrast, brightness, saturation, and sharpness all take the same format,
- * but need different parameter IDs, and brightness is 0-100, not -100 to 100.
- */
-static MMAL_BOOL_T mmalcam_next_colour_param(MMAL_COMPONENT_T *camera, uint32_t id, int min, int max, const char *param_name)
-{
-   static MMAL_PARAMETER_RATIONAL_T param = {{MMAL_PARAMETER_GROUP_CAMERA,sizeof(param)},{0,100}};
-   MMAL_PARAMETER_RATIONAL_T param_check = {{MMAL_PARAMETER_GROUP_CAMERA,sizeof(param_check)},{0,100}};
-   MMAL_STATUS_T result;
-   param.hdr.id = id;
-   param_check.hdr.id = id;
-
-   param.value.num += 20;
-   if(param.value.num < min || param.value.num > max)
-      param.value.num = min;
-   result = mmal_port_parameter_set(camera->control, &param.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to set %s, %d", param_name, result);
-      return MMAL_FALSE;
-   }
-   result = mmal_port_parameter_get(camera->control, &param_check.hdr);
-   if (result != MMAL_SUCCESS)
-   {
-      LOG_ERROR("Failed to retrieve %s, %d", param_name, result);
-      return MMAL_FALSE;
-   }
-   if (memcmp(&param, &param_check, sizeof(param)) != 0)
-   {
-      LOG_ERROR("%s set (%d/%d) was not retrieved (%d/%d)", param_name, 
-                  param.value.num, param.value.den, 
-                  param_check.value.num, param_check.value.den);
-      return MMAL_FALSE;
-   }
-   return MMAL_TRUE;
-}
-
 
 /*****************************************************************************/
 static MMAL_COMPONENT_T *test_video_render_create(MMALCAM_BEHAVIOUR_T *behaviour, MMAL_STATUS_T *status)

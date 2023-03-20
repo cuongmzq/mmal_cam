@@ -78,7 +78,6 @@ typedef struct MMALCAM_BEHAVIOUR_T
    MMAL_PARAMETER_STATISTICS_T render_stats;    /**< Video render stats */
    MMAL_PARAMETER_STATISTICS_T encoder_stats;   /**< Video encoder output stats */
    uint32_t bit_rate;                           /**< Video encoder bit rate */
-   MMAL_PARAM_FOCUS_T focus_test;               /**< Set to given focus, MMAL_PARAM_FOCUS_MAX to disable */
    uint32_t camera_num;                         /**< camera number */
    void(*frame_cb)(MMAL_BUFFER_HEADER_T*);
    MMAL_BOOL_T enable_viewfinder;
