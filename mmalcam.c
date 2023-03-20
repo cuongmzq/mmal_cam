@@ -223,6 +223,9 @@ static int test_parse_cmdline(int argc, const char **argv)
          if (sscanf(argv[i+1], "%u", &camcorder_behaviour.camera_num) == 0) goto invalid_option;
          i++;
          break;
+      case 'i': if (sscanf(argv[i+1], "%u", &camcorder_behaviour.intra_refresh_type) != 1) goto invalid_option;
+         i++;
+         break;
       default: goto invalid_option;
       }
       continue;
