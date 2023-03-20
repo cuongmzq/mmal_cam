@@ -65,7 +65,9 @@ static void test_signal_handler(int signum);
 static void test_mmalcam_dump_stats(const char *title, MMAL_PARAMETER_STATISTICS_T* stats);
 static int test_parse_cmdline(int argc, const char **argv);
 
-void on_frame_cb(MMAL_BUFFER_HEADER_T *frame);
+void on_frame_cb(MMAL_BUFFER_HEADER_T *frame) {
+   printf("FrameSize: %d\n", frame->length);
+};
 
 /*****************************************************************************/
 int main(int argc, const char **argv)
