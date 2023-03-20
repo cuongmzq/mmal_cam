@@ -69,8 +69,6 @@ typedef struct MMALCAM_BEHAVIOUR_T
    const char *vformat;                         /**< Video resolution and encoding format */
    MMAL_RECT_T display_area;                    /**< Size and position of viewfinder on screen */
    uint32_t layer;                              /**< Layer number of the viewfinder */
-   MMALCAM_CHANGE_T change;                     /**< Camera change to make, if any */
-   uint32_t seconds_per_change;                 /**< Number of seconds between changes */
    MMAL_RATIONAL_T frame_rate;                  /**< Frame rate, or zero for variable */
    MMAL_BOOL_T zero_copy;                       /**< Enable zero copy if set */
    MMAL_BOOL_T tunneling;                       /**< Enable port tunneling if set */

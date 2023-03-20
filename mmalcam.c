@@ -216,20 +216,6 @@ static int test_parse_cmdline(int argc, const char **argv)
          if (!test_mmalcam_parse_rect(argv[i+1], &camcorder_behaviour.display_area)) goto invalid_option;
          i++;
          break;
-      case 'c': if (i+2 >= argc) goto invalid_option;
-         {
-            uint32_t table_index;
-
-            if (sscanf(argv[i+1], "%u", &camcorder_behaviour.seconds_per_change) != 1) goto invalid_option;
-
-            for (table_index = 0; table_index < countof(mmalcam_change_table); table_index++)
-               if (strcmp(mmalcam_change_table[table_index].name, argv[i+2]) == 0)
-                  break;
-            if (table_index >= countof(mmalcam_change_table)) goto invalid_option;
-
-            camcorder_behaviour.change = mmalcam_change_table[table_index].value;
-         }
-         break;
       case 't': if (i+1 >= argc) goto invalid_option;
          if (sscanf(argv[i+1], "%u", &sleepy_time) != 1) goto invalid_option;
          i++;

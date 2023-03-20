@@ -395,7 +395,7 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    MMAL_COMPONENT_T *camera = 0, *encoder = 0, *render = 0;
    MMAL_PORT_T *viewfinder_port = 0, *video_port = 0, *still_port = 0;
    MMAL_PORT_T *render_port = 0, *encoder_input = 0, *encoder_output = 0;
-   uint32_t ms_per_change, last_change_ms, set_focus_delay_ms;
+   uint32_t last_change_ms, set_focus_delay_ms;
    int packet_count = 0;
 #if USE_CONTAINER
    VC_CONTAINER_T *container = 0;
@@ -502,7 +502,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    behaviour->init_result = MMALCAM_INIT_SUCCESS;
    vcos_semaphore_post(&behaviour->init_sem);
 
-   ms_per_change = behaviour->seconds_per_change * 1000;
    last_change_ms = vcos_get_ms();
    set_focus_delay_ms = 1000;
 
@@ -586,61 +585,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
                }
             }
             mmal_buffer_header_release(buffer);
-         }
-      }
-
-      /* Change a camera parameter if requested */
-      if (ms_per_change != 0)
-      {
-         if((vcos_get_ms() - last_change_ms) >= ms_per_change)
-         {
-            last_change_ms = vcos_get_ms();
-            switch (behaviour->change)
-            {
-               case MMALCAM_CHANGE_IMAGE_EFFECT:
-                  if (!mmalcam_next_effect(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_ROTATION:
-                  if (!mmalcam_next_rotation(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_ZOOM:
-                  if (!mmalcam_next_zoom(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_FOCUS:
-                  if (!mmalcam_next_focus(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_DRC:
-                  if (!mmalcam_next_drc(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_HDR:
-                  if (!mmalcam_next_hdr(camera))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_CONTRAST:
-                  if (!mmalcam_next_colour_param(camera, MMAL_PARAMETER_CONTRAST, -100, 100, "contrast"))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_BRIGHTNESS:
-                  if (!mmalcam_next_colour_param(camera, MMAL_PARAMETER_BRIGHTNESS, 0, 100, "brightness"))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_SATURATION:
-                  if (!mmalcam_next_colour_param(camera, MMAL_PARAMETER_SATURATION, -100, 100, "saturation"))
-                     *stop = 1;
-                  break;
-               case MMALCAM_CHANGE_SHARPNESS:
-                  if (!mmalcam_next_colour_param(camera, MMAL_PARAMETER_SHARPNESS, -100, 100, "sharpness"))
-                     *stop = 1;
-                  break;
-               default:
-                  LOG_ERROR("Unexpected change behaviour: %d", behaviour->change);
-                  break;
-            }
          }
       }
    }
@@ -773,13 +717,6 @@ static MMAL_COMPONENT_T *test_camera_create(MMALCAM_BEHAVIOUR_T *behaviour, MMAL
          LOG_ERROR("failed to set zero copy on camera output");
          goto error;
       }
-   }
-
-   if ( behaviour->change == MMALCAM_CHANGE_HDR )
-   {
-      MMAL_PARAMETER_ALGORITHM_CONTROL_T algo_ctrl = {{MMAL_PARAMETER_ALGORITHM_CONTROL, sizeof(MMAL_PARAMETER_ALGORITHM_CONTROL_T)},
-                        MMAL_PARAMETER_ALGORITHM_CONTROL_ALGORITHMS_HIGH_DYNAMIC_RANGE, 1 };
-      mmal_port_parameter_set(camera->control, &algo_ctrl.hdr);
    }
 
    *status = mmal_port_enable(camera->control, control_bh_cb);
