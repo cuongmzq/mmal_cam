@@ -82,9 +82,9 @@ int main(int argc, const char **argv)
    camcorder_behaviour.bit_rate = DEFAULT_BIT_RATE;
    camcorder_behaviour.focus_test = MMAL_PARAM_FOCUS_MAX;
    camcorder_behaviour.camera_num = DEFAULT_CAM_NUM;
-   camcorder_behaviour.frame_cb = []()(MMAL_BUFFER_HEADER_T *frame) {
+   camcorder_behaviour.frame_cb = &([]()(MMAL_BUFFER_HEADER_T *frame) {
       printf("Frame Size: %d\n", frame->length);
-   };
+   });
 
    if(test_parse_cmdline(argc, argv))
    {
