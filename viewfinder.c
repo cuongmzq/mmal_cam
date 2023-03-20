@@ -561,7 +561,9 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
                   LOG_ERROR("Write %d bytes of data from %p", buffer->length, buffer->data);
                   fwrite(buffer->data, 1, buffer->length, output);
 #endif
-              } else {
+              }
+              
+              if (behaviour->frame_cb) {
                   behaviour->frame_cb(&buffer);
               }
                mmal_buffer_header_mem_unlock(buffer);
