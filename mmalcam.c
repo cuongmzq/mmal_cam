@@ -302,5 +302,5 @@ static int test_parse_cmdline(int argc, const char **argv)
 }
 
 static void on_frame_cb(MMAL_BUFFER_HEADER_T *frame) {
-   printf("FrameSize: %d\n", frame->length);
+   // printf("FrameSize: %d\n", frame->length);
 };
