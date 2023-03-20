@@ -422,20 +422,22 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    video_port = camera->output[1];
    still_port = camera->output[2];
 
-   /* Create and setup video render component */
-   render = test_video_render_create(behaviour, &status);
-   if(!render)
-   {
-      behaviour->init_result = MMALCAM_INIT_ERROR_RENDER;
-      goto error;
-   }
-   render_port = render->input[0];
+   if (behaviour->enable_viewfinder) {
+      /* Create and setup video render component */
+      render = test_video_render_create(behaviour, &status);
+      if(!render)
+      {
+         behaviour->init_result = MMALCAM_INIT_ERROR_RENDER;
+         goto error;
+      }
+      render_port = render->input[0];
 
-   status = connect_ports(viewfinder_port, render_port, &queue_viewfinder, &pool_viewfinder);
-   if (status != MMAL_SUCCESS)
-   {
-      behaviour->init_result = MMALCAM_INIT_ERROR_VIEWFINDER;
-      goto error;
+      status = connect_ports(viewfinder_port, render_port, &queue_viewfinder, &pool_viewfinder);
+      if (status != MMAL_SUCCESS)
+      {
+         behaviour->init_result = MMALCAM_INIT_ERROR_VIEWFINDER;
+         goto error;
+      }
    }
 
    if (behaviour->uri || behaviour->frame_cb)
@@ -503,13 +505,12 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    ms_per_change = behaviour->seconds_per_change * 1000;
    last_change_ms = vcos_get_ms();
    set_focus_delay_ms = 1000;
-   
+
    MMAL_BUFFER_HEADER_T *buffer;
+   VCOS_UNSIGNED set;
 
    while(1)
    {
-      VCOS_UNSIGNED set;
-
       vcos_event_flags_get(&events, MMAL_CAM_ANY_EVENT, VCOS_OR_CONSUME, VCOS_TICKS_TO_MS(2), &set);
       if(*stop) break;
 
@@ -524,9 +525,15 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
       }
 
       /* Send empty buffers to the output ports */
-      status = fill_port_from_pool(viewfinder_port, pool_viewfinder);
-      if (status != MMAL_SUCCESS)
-         break;
+      if (behaviour->enable_viewfinder) {
+         status = fill_port_from_pool(viewfinder_port, pool_viewfinder);
+         if (status != MMAL_SUCCESS)
+            break;
+         /* Process filled output buffers */
+         status = send_buffer_from_queue(render_port, queue_viewfinder);
+         if (status != MMAL_SUCCESS)
+            break;
+      }
       status = fill_port_from_pool(video_port, pool_encoder_in);
       if (status != MMAL_SUCCESS)
          break;
@@ -535,9 +542,6 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
          break;
 
       /* Process filled output buffers */
-      status = send_buffer_from_queue(render_port, queue_viewfinder);
-      if (status != MMAL_SUCCESS)
-         break;
       status = send_buffer_from_queue(encoder_input, queue_encoder_in);
       if (status != MMAL_SUCCESS)
          break;
@@ -649,7 +653,8 @@ int test_mmal_start_camcorder(volatile int *stop, MMALCAM_BEHAVIOUR_T *behaviour
    disable_port(encoder_output);
 
    /* Disable components */
-   mmal_component_disable(render);
+   if (render)
+      mmal_component_disable(render);
    if (encoder)
       mmal_component_disable(encoder);
    mmal_component_disable(camera);

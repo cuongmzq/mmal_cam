@@ -83,6 +83,7 @@ typedef struct MMALCAM_BEHAVIOUR_T
    MMAL_PARAM_FOCUS_T focus_test;               /**< Set to given focus, MMAL_PARAM_FOCUS_MAX to disable */
    uint32_t camera_num;                         /**< camera number */
    void(*frame_cb)(MMAL_BUFFER_HEADER_T*);
+   MMAL_BOOL_T enable_viewfinder;
 } MMALCAM_BEHAVIOUR_T;
 
 /** Start the camcorder.
