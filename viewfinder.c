@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interface/mmal/util/mmal_util.h"
 #include "interface/mmal/util/mmal_default_components.h"
 
-#define USE_CONTAINER 0
+#define USE_CONTAINER 1
 
 #if USE_CONTAINER
 #include "containers/containers.h"
