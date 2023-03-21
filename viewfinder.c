@@ -978,24 +978,24 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
       if (behaviour->quantisationParameter)
       {
          MMAL_PARAMETER_UINT32_T param = {{ MMAL_PARAMETER_VIDEO_ENCODE_INITIAL_QUANT, sizeof(param)}, behaviour->quantisationParameter};
-         status = mmal_port_parameter_set(encoder_output, &param.hdr);
-         if (status != MMAL_SUCCESS)
+         *status = mmal_port_parameter_set(encoder_output, &param.hdr);
+         if (*status != MMAL_SUCCESS)
          {
             vcos_log_error("Unable to set initial QP");
             goto error;
          }
 
          MMAL_PARAMETER_UINT32_T param2 = {{ MMAL_PARAMETER_VIDEO_ENCODE_MIN_QUANT, sizeof(param)}, behaviour->quantisationParameter};
-         status = mmal_port_parameter_set(encoder_output, &param2.hdr);
-         if (status != MMAL_SUCCESS)
+         *status = mmal_port_parameter_set(encoder_output, &param2.hdr);
+         if (*status != MMAL_SUCCESS)
          {
             vcos_log_error("Unable to set min QP");
             goto error;
          }
 
          MMAL_PARAMETER_UINT32_T param3 = {{ MMAL_PARAMETER_VIDEO_ENCODE_MAX_QUANT, sizeof(param)}, behaviour->quantisationParameter};
-         status = mmal_port_parameter_set(encoder_output, &param3.hdr);
-         if (status != MMAL_SUCCESS)
+         *status = mmal_port_parameter_set(encoder_output, &param3.hdr);
+         if (*status != MMAL_SUCCESS)
          {
             vcos_log_error("Unable to set max QP");
             goto error;
