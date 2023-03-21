@@ -72,6 +72,9 @@ typedef struct MMALCAM_BEHAVIOUR_T
    MMAL_BOOL_T immutable_input;
    int intra_refresh_type;
    int intra_period;
+   int profile;
+   int level;
+   int quantisationParameter;
 } MMALCAM_BEHAVIOUR_T;
 
 /** Start the camcorder.

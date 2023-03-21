@@ -889,8 +889,8 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
       encoder_input->format->encoding = MMAL_ENCODING_OPAQUE;
    }
 
-   // if (behaviour->encoding == MMAL_ENCODING_H264)
-   // {
+   if (encoding == MMAL_ENCODING_H264)
+   {
       //set INLINE HEADER flag to generate SPS and PPS for every IDR if requested
       if (mmal_port_parameter_set_boolean(encoder_output, MMAL_PARAMETER_VIDEO_ENCODE_INLINE_HEADER, behaviour->bInlineHeaders) != MMAL_SUCCESS)
       {
@@ -955,54 +955,53 @@ static MMAL_COMPONENT_T *test_video_encoder_create(MMALCAM_BEHAVIOUR_T *behaviou
          if (*status != MMAL_SUCCESS) {
             vcos_log_error("Unable to set intraperiod");
             goto error;
-         }}
-
-         
-      {    
-         MMAL_PARAMETER_UINT32_T param = {
-            {MMAL_PARAMETER_VIDEO_ENCODE_INITIAL_QUANT, sizeof(param)},
-            0};
-         *status = mmal_port_parameter_set(encoder_output, &param.hdr);
-         if (*status != MMAL_SUCCESS) {
-            vcos_log_error("Unable to set initial QP");
-            goto error;
          }
-         
-         MMAL_PARAMETER_UINT32_T param2 = {
-            {MMAL_PARAMETER_VIDEO_ENCODE_MIN_QUANT, sizeof(param)},
-            0};
-         *status = mmal_port_parameter_set(encoder_output, &param2.hdr);
-         if (*status != MMAL_SUCCESS) {
-            vcos_log_error("Unable to set min QP");
-            goto error;
-         }
-
-         MMAL_PARAMETER_UINT32_T param3 = {
-            {MMAL_PARAMETER_VIDEO_ENCODE_MAX_QUANT, sizeof(param)},
-            0};
-         *status = mmal_port_parameter_set(encoder_output, &param3.hdr);
-         if (*status != MMAL_SUCCESS) {
-            vcos_log_error("Unable to set max QP");
-            goto error;
-         }}
+      }
 
       {    
          MMAL_PARAMETER_VIDEO_PROFILE_T  param;
          param.hdr.id = MMAL_PARAMETER_PROFILE;
          param.hdr.size = sizeof(param);
 
-         param.profile[0].profile = MMAL_VIDEO_PROFILE_H264_HIGH;
+         param.profile[0].profile = behaviour->profile;
 
-         param.profile[0].level = MMAL_VIDEO_LEVEL_H264_42;
+         param.profile[0].level = behaviour->level;
 
          *status = mmal_port_parameter_set(encoder_output, &param.hdr);
          if (*status != MMAL_SUCCESS)
          {
             vcos_log_error("Unable to set H264 profile");
             goto error;
-         }}
+         }
+      }
 
-   // }
+      if (behaviour->quantisationParameter)
+      {
+         MMAL_PARAMETER_UINT32_T param = {{ MMAL_PARAMETER_VIDEO_ENCODE_INITIAL_QUANT, sizeof(param)}, behaviour->quantisationParameter};
+         status = mmal_port_parameter_set(encoder_output, &param.hdr);
+         if (status != MMAL_SUCCESS)
+         {
+            vcos_log_error("Unable to set initial QP");
+            goto error;
+         }
+
+         MMAL_PARAMETER_UINT32_T param2 = {{ MMAL_PARAMETER_VIDEO_ENCODE_MIN_QUANT, sizeof(param)}, behaviour->quantisationParameter};
+         status = mmal_port_parameter_set(encoder_output, &param2.hdr);
+         if (status != MMAL_SUCCESS)
+         {
+            vcos_log_error("Unable to set min QP");
+            goto error;
+         }
+
+         MMAL_PARAMETER_UINT32_T param3 = {{ MMAL_PARAMETER_VIDEO_ENCODE_MAX_QUANT, sizeof(param)}, behaviour->quantisationParameter};
+         status = mmal_port_parameter_set(encoder_output, &param3.hdr);
+         if (status != MMAL_SUCCESS)
+         {
+            vcos_log_error("Unable to set max QP");
+            goto error;
+         }
+      }
+   }
 
    /* Enable component */
    *status = mmal_component_enable(encoder);

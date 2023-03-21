@@ -75,6 +75,9 @@ int main(int argc, const char **argv)
    camcorder_behaviour.intra_refresh_type = -1;
    camcorder_behaviour.intra_period = 0;
    camcorder_behaviour.immutable_input = MMAL_TRUE;
+   camcorder_behaviour.profile = MMAL_VIDEO_PROFILE_H264_HIGH;
+   camcorder_behaviour.level = MMAL_VIDEO_LEVEL_H264_42;
+   camcorder_behaviour.quantisationParameter = 0;
    if(test_parse_cmdline(argc, argv))
    {
       result = -1;
@@ -226,6 +229,9 @@ static int test_parse_cmdline(int argc, const char **argv)
          i++;
          break;
       case 'i': if (sscanf(argv[i+1], "%u", &camcorder_behaviour.intra_refresh_type) != 1) goto invalid_option;
+         i++;
+         break;
+      case 'q': if (sscanf(argv[i+1], "%u", &camcorder_behaviour.quantisationParameter) != 1) goto invalid_option;
          i++;
          break;
       default: goto invalid_option;
