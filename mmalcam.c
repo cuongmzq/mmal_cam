@@ -273,6 +273,8 @@ static int test_parse_cmdline(int argc, const char **argv)
       printf(" -O          : use opaque images\n");
       printf(" -b <n>      : use <n> as the bitrate (bits/s)\n");
       printf(" -n <n>      : Set camera number <n>. Use MMAL_PARAMETER_CAMERA_NUM values.\n");
+      printf(" -i <n>      : intra_refresh_type\n");
+      printf(" -q <n>      : quantisationParameter\n");
    }
    return 1;
 }
